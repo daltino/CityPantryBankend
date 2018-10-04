@@ -12,15 +12,21 @@ class Order
     protected $location;
     protected $covers; //headCount
 
+    // We will be using flat files for vendor data
+    // They are stored under the Data directory
+    protected $data_dir = __DIR__ . "/../Data/";
+
     // Start Setters and Getters
     public function setVendorFile($vendorfile) {
         $this->vendorfile = $vendorfile;
     }
 
+    // Set and Get name of vendor data file in Data folder
     public function getVendorFile() {
         return $this->vendorfile;
     }
 
+    // Set and Get delivery date in format (dd/mm/yy)
     public function setDay($day) {
         $this->day = $day;
     }
@@ -29,6 +35,7 @@ class Order
         return $this->day;
     }
 
+    // Set and Get delivery time in format (hh:mm)
     public function setTime($time) {
         $this->time = $time;
     }
@@ -37,6 +44,7 @@ class Order
         return $this->time;
     }
 
+    // Set and Get location eg. NW43QB
     public function setLocation($location) {
         $this->location = $location;
     }
@@ -45,6 +53,7 @@ class Order
         return $this->location;
     }
 
+    // Set and Get number of people to feed
     public function setCovers($covers) {
         $this->covers = $covers;
     }
@@ -64,14 +73,14 @@ class Order
         // properties are defined such as
         // input file, day, time, location and
         // covers.
-        if(!$this->filename || !$this->day ||  !$this->time
+        if(!$this->vendorfile || !$this->day ||  !$this->time
             ||  !$this->location || !$this->covers) {
             print("Please provide the following information to complete an order:
-                        Vendor Input File, Day, Time, Location, Covers");
+                        Vendor Input File, Day, Time, Location, Covers\r\n");
             return null;
         } else {
             // Open the vendor data file
-            $file = fopen($this->vendorfile,"r");
+            $file = fopen($this->data_dir.$this->vendorfile,"r");
 
             // Set data object and flags to help
             // read the file and store data
@@ -94,33 +103,50 @@ class Order
                     // with location NW42QA as both starts
                     // with NW.
                     $vendorData = explode(";", $line);
-                    if(substr($vendorData[1], 0, 1) != substr($this->location, 0, 1)){
+                    $vendorLocationRegion = (!is_numeric(substr($vendorData[1], 1, 1))) ?
+                        substr($vendorData[1], 0, 2) : substr($vendorData[1], 0, 1) ;
+
+                    // Set both locations to uppercase for correct comparison
+                    $vendorLocationRegion = strtoupper($vendorLocationRegion);
+                    $this->location = strtoupper($this->location);
+
+                    // Compare location given and vendor locations
+                    if((strlen($vendorLocationRegion) == 1) && $vendorLocationRegion != substr($this->location, 0, 1)){
                         continue;
                     }
+                    else if((strlen($vendorLocationRegion) == 2) && $vendorLocationRegion != substr($this->location, 0, 2)){
+                        continue;
+                    }
+
                     // Check if vendor can meet up the order's
                     // covers or head counts
-                    else if ($vendorData[2] < $this->covers){
+                    else if (intval($vendorData[2]) < intval($this->covers)){
                         continue;
                     } else {
+                        // Add to suitable vendor to result list
                         $currVendor = $line;
                         $vendorFound = true;
                     }
                 }
                 else{
+                    // Clear menuitem list
+                    $currItems = array();
                     // Get delivery time by subtracting search time
-                    $deliveryDateTime = strtoupper($this->day.' '.$this->time);
-                    $searchDateTime = new DateTime("d/m/y H:i:s");
+                    $deliveryDateTime = DateTime::createFromFormat("d/m/y H:i", $this->day.' '.$this->time);
+                    $searchDateTime = DateTime::createFromFormat("d/m/y H:i:s", date('d/m/y H:i:s'));
                     if($searchDateTime < $deliveryDateTime) {
-                        $deliveryTime = $deliveryDateTime->diff($searchDateTime)->h;
+                        $diff = $deliveryDateTime->diff($searchDateTime);
+                        $deliveryTime = ($diff->days * 24) + $diff->h;
 
                         // Check if menu item notice period
                         // falls within the requested delivery time
                         $menuData = explode(";",$line);
-                        if(int(substr($menuData, 0, 1)) <= int($deliveryTime)){
+                        if(intval(substr($menuData[2], 0, 2)) <= intval($deliveryTime)){
+                            // Add suitable menuitem to result list
                             $currItems[] = $line;
                         }
                     } else {
-                        print("Delivery time cannot be before search time!");
+                        print("Delivery time cannot be before search time!\r\n");
                         return null;
                     }
                 }
@@ -131,11 +157,22 @@ class Order
             // Count the vendors
             $numVendors = count($vendors);
             if($numVendors == 0) {
-                print("No vendors defined in input file!");
+                print("No vendors defined in input file!\r\n");
                 return null;
             }
 
+            // Print the result of valid menuitems
+            // Stripping out the notice period
+            $menuItems = array();
+            foreach ($vendors as $vendor) {
+                foreach($vendor as $menuItem){
+                    $pickedMenuItem = substr($menuItem, 0, strripos($menuItem, ';')+1);
+                    $menuItems[] = $pickedMenuItem;
+                }
+            }
 
+            // Encode result as JSON response
+            return json_encode($menuItems);
         }
     }
 }
