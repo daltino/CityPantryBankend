@@ -21,6 +21,8 @@ php -q app/index.php "vendors-data" "06/10/18" "15:00" "E32NY" 50
 ```
 cd CityPantryBackend
 phpunit --colors src/Test/Unit/MenuItemTest.php
+phpunit --colors src/Test/Unit/OrderTest.php
+phpunit --colors src/Test/Unit/VendorTest.php
 ```
 
 ### To build Docker container and test locally
