@@ -1,9 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: angelpilot5
- * Date: 10/4/18
- * Time: 2:10 AM
+ * User: Dalton Whyte
  */
 class Order
 {
