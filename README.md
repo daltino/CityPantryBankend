@@ -46,7 +46,7 @@ docker rm citypantry-app
 ```
 
 ### To Deploy on GCP Kubernetes Engine
-Note: While following these steps please update the '<gcp-project-id>' to your GCP project ID respectively.
+Note: While following these steps please update the 'gcp-project-id' to your GCP project ID respectively.
 
 1. Download and install gcloud, then configure your environment, setting the GCP project and following the prompts:
 ```
