@@ -3,6 +3,10 @@
  * Created by PhpStorm.
  * User: Dalton Whyte
  */
+
+include "MenuItem.php";
+include "Vendor.php";
+
 class Order
 {
     // Class Variables/Properties
@@ -93,8 +97,10 @@ class Order
                 // Get lines and check if its empty
                 $line = trim(fgets($file));
                 if($line == "") {
-                    $vendors[$currVendor] = $currItems;
-                    $vendorFound = false;
+                    if(!is_string($currVendor) && $currVendor->getName() != "") {
+                        $vendors[$currVendor->getName()] = [$currVendor, $currItems];
+                        $vendorFound = false;
+                    }
                 }
                 else if(!$vendorFound){
                     // Split vendor string and check if
@@ -123,14 +129,18 @@ class Order
                     else if (intval($vendorData[2]) < intval($this->covers)){
                         continue;
                     } else {
+                        // Instantiate a Vendor object
+                        $vendor = new Vendor();
+                        $vendor->setName($vendorData[0]);
+                        $vendor->setPostCode($vendorData[1]);
+                        $vendor->setMaxHeadCount($vendorData[2]);
+
                         // Add to suitable vendor to result list
-                        $currVendor = $line;
+                        $currVendor = $vendor;
                         $vendorFound = true;
                     }
                 }
                 else{
-                    // Clear menuitem list
-                    $currItems = array();
                     // Get delivery time by subtracting search time
                     $deliveryDateTime = DateTime::createFromFormat("d/m/y H:i", $this->day.' '.$this->time);
                     $searchDateTime = DateTime::createFromFormat("d/m/y H:i:s", date('d/m/y H:i:s'));
@@ -142,8 +152,14 @@ class Order
                         // falls within the requested delivery time
                         $menuData = explode(";",$line);
                         if(intval(substr($menuData[2], 0, 2)) <= intval($deliveryTime)){
+                            // Instantiate a MenuItem object
+                            $menuItem = new MenuItem();
+                            $menuItem->setName($menuData[0]);
+                            $menuItem->setAllergies($menuData[1]);
+                            $menuItem->setNoticePeriod($menuData[2]);
+
                             // Add suitable menuitem to result list
-                            $currItems[] = $line;
+                            $currItems[] = $menuItem;
                         }
                     } else {
                         print("Delivery time cannot be before search time!\r\n");
@@ -155,20 +171,30 @@ class Order
             fclose($file);
 
             // Count the vendors
-            $numVendors = count($vendors);
-            if($numVendors == 0) {
+            if(count($vendors) == 0) {
                 print("No vendors defined in input file!\r\n");
                 return null;
             }
 
-            // Print the result of valid menuitems
+            // Curate the valid MenuItems
             // Stripping out the notice period
+            // Using a vendorCount flag to pick
+            // the vendor object in the array
             $menuItems = array();
+            $vendorCount = 0;
             foreach ($vendors as $vendor) {
                 foreach($vendor as $menuItem){
-                    $pickedMenuItem = substr($menuItem, 0, strripos($menuItem, ';')+1);
-                    $menuItems[] = $pickedMenuItem;
+                    if ($vendorCount != 0){
+                        foreach($menuItem as $currMenuItem) {
+                            $pickedMenuItem = $currMenuItem->getName().';'.$currMenuItem->getAllergies().($currMenuItem->getAllergies() == "" ? ";" : "");
+                            $menuItems[] = $pickedMenuItem;
+                        }
+                    } else {
+                        $vendorCount = 1;
+                        continue;
+                    }
                 }
+                $vendorCount = 0;
             }
 
             // Encode result as JSON response

@@ -24,15 +24,27 @@ class OrderTest extends TestCase
         $this->assertNull($order->getVendorFile());
     }
 
-    public function testSearchForMenuItems_WithOrderDetails_ReturnsMenuItems()
+    public function testSearchForMenuItems_WithValidOrderDetails_ReturnsMenuItems()
     {
         $order = new Order();
         $order->setVendorFile("vendors-data");
-        $order->setDay("05/10/18");
+        $order->setDay("08/10/18");
         $order->setTime("18:00");
         $order->setLocation("E32NY");
         $order->setCovers(50);
-        $this->assertJsonStringEqualsJsonString('["Grain salad;nuts;", "Fried Rice and chicken;salad;"]',
+        $this->assertJsonStringEqualsJsonString('["Grain salad;nuts", "Fried Rice and chicken;salad"]',
+            $order->searchForMenuItems());
+    }
+
+    public function testSearchForMenuItems_WithNoAllergies_ReturnsMenuItemsWithNoAllergies()
+    {
+        $order = new Order();
+        $order->setVendorFile("vendors-data");
+        $order->setDay("08/10/18");
+        $order->setTime("18:00");
+        $order->setLocation("NW352A");
+        $order->setCovers(20);
+        $this->assertJsonStringEqualsJsonString('["Premium meat selection;;", "Breakfast;gluten,eggs"]',
             $order->searchForMenuItems());
     }
 }

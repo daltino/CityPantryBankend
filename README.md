@@ -12,9 +12,10 @@ git clone https://github.com/daltino/CityPantryBankend.git
 cd CityPantryBackend
 php -q index.php "src/Data/vendors-data" <deliver-day> <deliver-time> <location> <covers>
 ```
-Example command:
+Example commands:
 ```
 php -q app/index.php "vendors-data" "06/10/18" "15:00" "E32NY" 50
+php -q app/index.php "vendors-data" "08/10/18" "12:00" "NW352A" 20
 ```
 
 ### To Run Tests locally using PHPUnit
@@ -35,9 +36,10 @@ docker build -t <your-namespace>/city-pantry-backend:v0.0.1 .
 ```
 docker run -it -p 8080:80 --name citypantry-app <your-namespace>/city-pantry-backend:v0.0.2 /bin/bash
 ```
-3. Execute a test on the API:
+3. Execute tests on the API:
 ```
 php -q app/index.php "vendors-data" "06/10/18" "15:00" "E32NY" 50
+php -q app/index.php "vendors-data" "08/10/18" "12:00" "NW352A" 20
 ```
 4. Exit and remove the running container
 ```
@@ -75,9 +77,10 @@ kubectl autoscale deployment city-pantry-backend-deployment --max 15 --min 2 --c
 kubectl get pods
 kubectl exec -it <pod-name> -- /bin/bash
 ```
-5. Execute a test on the API to ensure its working:
+5. Execute tests on the API to ensure its working:
 ```
 php -q app/index.php "vendors-data" "06/10/18" "15:00" "E32NY" 50
+php -q app/index.php "vendors-data" "08/10/18" "12:00" "NW352A" 20
 ```
 6. To disable the cluster, run the following:
 ```

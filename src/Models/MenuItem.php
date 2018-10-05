@@ -4,6 +4,7 @@
  * Created by PhpStorm.
  * User: Dalton Whyte
  */
+
 class MenuItem
 {
     // Class Variables/Properties
