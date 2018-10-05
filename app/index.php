@@ -19,7 +19,7 @@ if (count($argv) >= 6){
     $location = $argv[4];
     $covers = $argv[5];
 
-//    // Initialize the Ordering API
+    // Initialize the Ordering API
     $orderAPI = new OrderAPI();
     $menuItems = $orderAPI->search($vendorData, $deliveryDay, $deliveryTime, $location, $covers);
     $menuItems = json_decode($menuItems);

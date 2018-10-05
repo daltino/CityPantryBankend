@@ -31,7 +31,7 @@ phpunit --colors src/Test/Unit/VendorTest.php
 cd CityPantryBackend
 docker build -t <your-namespace>/city-pantry-backend:v0.0.1 .
 ```
-2. Run and shell into the conatainer:
+2. Run and shell into the container:
 ```
 docker run -it -p 8080:80 --name citypantry-app <your-namespace>/city-pantry-backend:v0.0.2 /bin/bash
 ```
