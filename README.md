@@ -71,18 +71,21 @@ kubectl run city-pantry-backend-deployment --image=gcr.io/<gcp-project-id>/city-
 
 kubectl autoscale deployment city-pantry-backend-deployment --max 15 --min 2 --cpu-percent 80
 ```
-
-4. You can shell into the pods running by first getting the list of pods:
+5. As a best practise, you can create the deployment using a YAML file in the manifest folder by running this command:
+```
+kubectl create -f manifest/city-pantry-backend-deployment.yaml
+```
+6. You can shell into the pods running by first getting the list of pods:
 ```
 kubectl get pods
 kubectl exec -it <pod-name> -- /bin/bash
 ```
-5. Execute tests on the API to ensure its working:
+7. Execute tests on the API to ensure its working:
 ```
 php -q app/index.php "vendors-data" "06/10/18" "15:00" "E32NY" 50
 php -q app/index.php "vendors-data" "08/10/18" "12:00" "NW352A" 20
 ```
-6. To disable the cluster, run the following:
+8. To disable the cluster, run the following:
 ```
 gcloud container clusters update city-pantry-cluster --enable-autoscaling \
     --min-nodes 0 --max-nodes 10 --node-pool default-pool
