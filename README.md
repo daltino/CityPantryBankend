@@ -76,6 +76,7 @@ kubectl autoscale deployment city-pantry-backend-deployment --max 15 --min 2 --c
 kubectl create -f manifest/city-pantry-backend-deployment.yaml
 ```
 Remember to update your 'gcp-project-id' under the spec -> containers -> image setting in the YAML file.
+
 6. You can shell into the pods running by first getting the list of pods:
 ```
 kubectl get pods
