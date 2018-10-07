@@ -29,7 +29,7 @@ spec:
         app: city-pantry-backend
     spec:
       containers:
-      - image: gcr.io/phoenix-0018/city-pantry-backend:v0.0.1
+      - image: gcr.io/<gcp-project-id>/city-pantry-backend:v0.0.1
         imagePullPolicy: IfNotPresent
         name: city-pantry-backend-deployment
         ports:
